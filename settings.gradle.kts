@@ -7,7 +7,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
 }
 
-rootProject.name = "library-kata"
+rootProject.name = "project-template"
 include(
     "app",
     "libs:common-arrow",
