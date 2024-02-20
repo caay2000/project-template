@@ -2,6 +2,7 @@ package com.github.caay2000.common
 
 import com.github.caay2000.common.http.ErrorResponseDocument
 import com.github.caay2000.common.test.http.HttpDataResponse
+import com.github.caay2000.common.test.json.testJsonMapper
 import com.github.caay2000.context.domain.AccountId
 import com.github.caay2000.context.domain.Birthdate
 import com.github.caay2000.context.domain.Email
@@ -22,10 +23,12 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
+import mu.KLogger
+import mu.KotlinLogging
 
 class LibraryClient {
+    private val logger: KLogger = KotlinLogging.logger {}
 
     context(ApplicationTestBuilder)
     fun createAccount(
@@ -38,27 +41,26 @@ class LibraryClient {
         phoneNumber: PhoneNumber,
     ): HttpDataResponse<AccountDetailsDocument> =
         runBlocking {
-            client.post("/account") {
-                setBody(
-                    Json.encodeToString(
-                        CreateAccountRequestDocument(
-                            identityNumber = identityNumber.value,
-                            name = name.value,
-                            surname = surname.value,
-                            birthdate = birthdate.value,
-                            email = email.value,
-                            phonePrefix = phonePrefix.value,
-                            phoneNumber = phoneNumber.value,
-                        ),
-                    ),
+            val request =
+                CreateAccountRequestDocument(
+                    identityNumber = identityNumber.value,
+                    name = name.value,
+                    surname = surname.value,
+                    birthdate = birthdate.value,
+                    email = email.value,
+                    phonePrefix = phonePrefix.value,
+                    phoneNumber = phoneNumber.value,
                 )
+            val jsonRequest = testJsonMapper.encodeToString(request)
+            logger.debug { "CreateAccount Request: $jsonRequest" }
+            client.post("/account") {
+                setBody(jsonRequest)
                 contentType(ContentType.Application.Json)
             }.toHttpDataResponse()
         }
 
     context(ApplicationTestBuilder)
-    fun findAccount(id: AccountId): HttpDataResponse<AccountDetailsDocument> =
-        runBlocking { client.get("/account/${id.value}").toHttpDataResponse() }
+    fun findAccount(id: AccountId): HttpDataResponse<AccountDetailsDocument> = runBlocking { client.get("/account/${id.value}").toHttpDataResponse() }
 
     private suspend inline fun <reified T> HttpResponse.toHttpDataResponse(): HttpDataResponse<T> {
         val body = bodyAsText()
@@ -66,13 +68,13 @@ class LibraryClient {
         return HttpDataResponse(
             value = decodeJsonBody<T>(body),
             httpResponse = this,
-            error = decodeJsonBody<ErrorResponseDocument>(body),
+            error = ErrorResponseDocument(body),
         )
     }
 
     private inline fun <reified T> decodeJsonBody(body: String): T? =
         try {
-            Json.decodeFromJsonElement<T>(Json.parseToJsonElement(body))
+            testJsonMapper.decodeFromJsonElement<T>(testJsonMapper.parseToJsonElement(body))
         } catch (e: Exception) {
             null
         }

@@ -3,9 +3,7 @@ package com.github.caay2000.context.application.create
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
-import arrow.core.recover
 import arrow.core.right
-import com.github.caay2000.common.database.RepositoryError
 import com.github.caay2000.common.event.DomainEventPublisher
 import com.github.caay2000.context.application.AccountRepository
 import com.github.caay2000.context.application.FindAccountCriteria
@@ -20,65 +18,44 @@ class AccountCreator(
     private val accountRepository: AccountRepository,
     private val eventPublisher: DomainEventPublisher,
 ) {
-
     fun invoke(request: CreateAccountRequest): Either<AccountCreatorError, Unit> =
         guardIdentityNumberIsNotRepeated(request.identityNumber)
             .flatMap { guardEmailIsNotRepeated(request.email) }
             .flatMap { guardPhoneIsNotRepeated(request.phonePrefix, request.phoneNumber) }
             .map { Account.create(request) }
-            .flatMap { account -> account.save() }
-            .flatMap { account -> account.publishEvents() }
+            .map { account -> account.save() }
+            .map { account -> account.publishEvents() }
 
     private fun guardIdentityNumberIsNotRepeated(identityNumber: IdentityNumber): Either<AccountCreatorError, Unit> =
         accountRepository.findBy(FindAccountCriteria.ByIdentityNumber(identityNumber))
-            .flatMap { AccountCreatorError.IdentityNumberAlreadyExists(identityNumber).left() }
-            .recover { error ->
-                when (error) {
-                    is RepositoryError.NotFoundError -> Unit.right()
-                    is AccountCreatorError -> raise(error)
-                    else -> raise(AccountCreatorError.Unknown(error))
-                }
-            }
+            ?.let { AccountCreatorError.IdentityNumberAlreadyExists(identityNumber).left() }
+            ?: Unit.right()
 
     private fun guardEmailIsNotRepeated(email: Email): Either<AccountCreatorError, Unit> =
         accountRepository.findBy(FindAccountCriteria.ByEmail(email))
-            .flatMap { AccountCreatorError.EmailAlreadyExists(email).left() }
-            .recover { error ->
-                when (error) {
-                    is RepositoryError.NotFoundError -> Unit.right()
-                    is AccountCreatorError -> raise(error)
-                    else -> raise(AccountCreatorError.Unknown(error))
-                }
-            }
+            ?.let { AccountCreatorError.EmailAlreadyExists(email).left() }
+            ?: Unit.right()
 
-    private fun guardPhoneIsNotRepeated(phonePrefix: PhonePrefix, phoneNumber: PhoneNumber): Either<AccountCreatorError, Unit> =
+    private fun guardPhoneIsNotRepeated(
+        phonePrefix: PhonePrefix,
+        phoneNumber: PhoneNumber,
+    ): Either<AccountCreatorError, Unit> =
         accountRepository.findBy(FindAccountCriteria.ByPhone(phonePrefix, phoneNumber))
-            .flatMap { AccountCreatorError.PhoneAlreadyExists(phonePrefix, phoneNumber).left() }
-            .recover { error ->
-                when (error) {
-                    is RepositoryError.NotFoundError -> Unit.right()
-                    is AccountCreatorError -> raise(error)
-                    else -> raise(AccountCreatorError.Unknown(error))
-                }
-            }
+            ?.let { AccountCreatorError.PhoneAlreadyExists(phonePrefix, phoneNumber).left() }
+            ?: Unit.right()
 
-    private fun Account.save(): Either<AccountCreatorError, Account> =
-        accountRepository.save(this)
-            .mapLeft { com.github.caay2000.context.application.create.AccountCreatorError.Unknown(it) }
-            .map { this }
+    private fun Account.save(): Account = accountRepository.save(this).let { this }
 
-    private fun Account.publishEvents(): Either<AccountCreatorError, Unit> =
-        eventPublisher.publish(pullEvents())
-            .mapLeft { com.github.caay2000.context.application.create.AccountCreatorError.Unknown(it) }
+    private fun Account.publishEvents(): Unit = eventPublisher.publish(pullEvents())
 }
 
 sealed class AccountCreatorError : RuntimeException {
     constructor(message: String) : super(message)
-    constructor(throwable: Throwable) : super(throwable)
 
-    class Unknown(error: Throwable) : AccountCreatorError(error)
     class IdentityNumberAlreadyExists(identityNumber: IdentityNumber) : AccountCreatorError("an account with identity number ${identityNumber.value} already exists")
+
     class EmailAlreadyExists(email: Email) : AccountCreatorError("an account with email ${email.value} already exists")
+
     class PhoneAlreadyExists(phonePrefix: PhonePrefix, phoneNumber: PhoneNumber) :
         AccountCreatorError("an account with phone ${phonePrefix.value} ${phoneNumber.value} already exists")
 }

@@ -9,7 +9,6 @@ import mu.KLogger
 import mu.KotlinLogging
 
 class LogAccountInfoOnLoanAccountCreatedEventSubscriber(accountRepository: AccountRepository) : DomainEventSubscriber<AccountCreatedEvent>() {
-
     override val logger: KLogger = KotlinLogging.logger {}
     private val commandHandler = LogAccountInfoCommandHandler(accountRepository)
 

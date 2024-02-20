@@ -9,9 +9,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
-val RoutingConfiguration = createApplicationPlugin(name = "RoutingConfiguration") {
-    application.routing {
-        post("/account") { DiKt.get<CreateAccountController>().invoke(this.call) }
-        get("/account/{id}") { DiKt.get<FindAccountController>().invoke(this.call) }
+val RoutingConfiguration =
+    createApplicationPlugin(name = "RoutingConfiguration") {
+        application.routing {
+            post("/account") { DiKt.get<CreateAccountController>().invoke(this.call) }
+            get("/account/{id}") { DiKt.get<FindAccountController>().invoke(this.call) }
+        }
     }
-}

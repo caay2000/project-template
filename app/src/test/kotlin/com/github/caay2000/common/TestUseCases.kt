@@ -1,5 +1,6 @@
 package com.github.caay2000.common
 
+import com.github.caay2000.common.test.TestCase
 import com.github.caay2000.common.test.http.HttpDataResponse
 import com.github.caay2000.common.test.mock.MockDateProvider
 import com.github.caay2000.common.test.mock.MockIdGenerator
@@ -20,8 +21,8 @@ class TestUseCases(
     private val mockIdGenerator: MockIdGenerator? = null,
     private val mockDateProvider: MockDateProvider? = null,
 ) {
-
     context(ApplicationTestBuilder)
+    @TestCase
     fun `account is created`(
         account: Account = AccountMother.random(),
         accountId: AccountId? = null,
@@ -45,8 +46,12 @@ class TestUseCases(
     }
 
     context(ApplicationTestBuilder)
+    @TestCase
     fun `find account`(id: AccountId): HttpDataResponse<AccountDetailsDocument> = libraryClient.findAccount(id)
 
+    @TestCase
     private fun `id will be mocked`(id: UUID): UUID = mockIdGenerator?.mock(id).let { id }
+
+    @TestCase
     private fun `datetime will be mocked`(datetime: LocalDateTime): LocalDateTime = mockDateProvider?.mock(datetime).let { datetime }
 }

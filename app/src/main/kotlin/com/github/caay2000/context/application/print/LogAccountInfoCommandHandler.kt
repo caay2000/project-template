@@ -10,7 +10,6 @@ import mu.KotlinLogging
 import java.util.UUID
 
 class LogAccountInfoCommandHandler(accountRepository: AccountRepository) : CommandHandler<LogAccountInfoCommand> {
-
     override val logger: KLogger = KotlinLogging.logger {}
     private val accountLogger = AccountLogger(accountRepository)
 
