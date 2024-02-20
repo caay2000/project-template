@@ -1,11 +1,10 @@
 package com.github.caay2000.common.test.mock
 
-import com.github.caay2000.common.dateprovider.DateProvider
+import com.github.caay2000.common.date.provider.DateProvider
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 class MockDateProvider : DateProvider {
-
     private var dateIndex = 0
     private var datetimeIndex = 0
     private val dateMocks: MutableList<LocalDate> = mutableListOf()
@@ -15,8 +14,8 @@ class MockDateProvider : DateProvider {
         dates.forEach { dateMocks.add(it) }
     }
 
-    fun mock(vararg datetimes: LocalDateTime) {
-        datetimes.forEach { datetimeMocks.add(it) }
+    fun mock(vararg dateTimes: LocalDateTime) {
+        dateTimes.forEach { datetimeMocks.add(it) }
     }
 
     override fun date(): LocalDate {

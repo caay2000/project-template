@@ -1,10 +1,12 @@
 package com.github.caay2000.context.primaryadapter.http
 
-import com.github.caay2000.common.dateprovider.DateProvider
+import com.github.caay2000.common.date.provider.DateProvider
 import com.github.caay2000.common.event.DomainEventPublisher
 import com.github.caay2000.common.http.Controller
 import com.github.caay2000.common.idgenerator.IdGenerator
+import com.github.caay2000.common.jsonapi.ServerResponse
 import com.github.caay2000.context.application.AccountRepository
+import com.github.caay2000.context.application.create.AccountCreatorError
 import com.github.caay2000.context.application.create.CreateAccountCommand
 import com.github.caay2000.context.application.create.CreateAccountCommandHandler
 import com.github.caay2000.context.application.find.FindAccountByIdQuery
@@ -27,7 +29,6 @@ class CreateAccountController(
     accountRepository: AccountRepository,
     eventPublisher: DomainEventPublisher,
 ) : Controller {
-
     override val logger: KLogger = KotlinLogging.logger {}
 
     private val commandHandler = CreateAccountCommandHandler(accountRepository, eventPublisher)
@@ -43,7 +44,24 @@ class CreateAccountController(
         call.respond(HttpStatusCode.Created, queryResult.account.toAccountDetailsDocument())
     }
 
-    private fun CreateAccountRequestDocument.toCommand(accountId: UUID, registerDate: LocalDateTime): CreateAccountCommand =
+    override suspend fun handleExceptions(
+        call: ApplicationCall,
+        e: Exception,
+    ) {
+        call.serverError {
+            when (e) {
+                is AccountCreatorError.IdentityNumberAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "IdentityNumberAlreadyExists", e.message)
+                is AccountCreatorError.EmailAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "EmailAlreadyExists", e.message)
+                is AccountCreatorError.PhoneAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "PhoneAlreadyExists", e.message)
+                else -> ServerResponse(HttpStatusCode.InternalServerError, "Unknown Error", e.message)
+            }
+        }
+    }
+
+    private fun CreateAccountRequestDocument.toCommand(
+        accountId: UUID,
+        registerDate: LocalDateTime,
+    ): CreateAccountCommand =
         CreateAccountCommand(
             accountId = accountId,
             identityNumber = identityNumber,

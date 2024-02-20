@@ -1,12 +1,10 @@
 plugins {
-    // Support convention plugins written in Kotlin.
-    // Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
     `kotlin-dsl`
 }
 
-project.ext["kotlin_version"] =  "1.8.21"
-project.ext["spotless_version"] =  "6.20.0"
-project.ext["dependencies_version"] =  "0.47.0"
+project.ext["kotlin_version"] =  "1.9.22"
+project.ext["spotless_version"] =  "6.25.0"
+project.ext["dependencies_version"] =  "0.51.0"
 
 repositories {
     // Use the plugin portal to apply community plugins in convention plugins.
@@ -14,7 +12,7 @@ repositories {
 }
 
 tasks.wrapper {
-    gradleVersion = "8.2.1"
+    gradleVersion = "8.6"
     distributionType = Wrapper.DistributionType.ALL
 }
 

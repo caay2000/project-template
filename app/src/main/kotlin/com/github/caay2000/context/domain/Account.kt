@@ -1,7 +1,7 @@
 package com.github.caay2000.context.domain
 
 import com.github.caay2000.common.ddd.Aggregate
-import com.github.caay2000.common.ddd.DomainId
+import com.github.caay2000.common.ddd.AggregateId
 import com.github.caay2000.events.AccountCreatedEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,36 +18,37 @@ data class Account(
     val phoneNumber: PhoneNumber,
     val registerDate: RegisterDate,
 ) : Aggregate() {
-
     companion object {
-        fun create(request: CreateAccountRequest) = Account(
-            id = request.accountId,
-            identityNumber = request.identityNumber,
-            name = request.name,
-            surname = request.surname,
-            birthdate = request.birthdate,
-            email = request.email,
-            phonePrefix = request.phonePrefix,
-            phoneNumber = request.phoneNumber,
-            registerDate = request.registerDate,
-        ).also { account -> account.pushEvent(account.toAccountCreatedEvent()) }
+        fun create(request: CreateAccountRequest) =
+            Account(
+                id = request.accountId,
+                identityNumber = request.identityNumber,
+                name = request.name,
+                surname = request.surname,
+                birthdate = request.birthdate,
+                email = request.email,
+                phonePrefix = request.phonePrefix,
+                phoneNumber = request.phoneNumber,
+                registerDate = request.registerDate,
+            ).also { account -> account.pushEvent(account.toAccountCreatedEvent()) }
     }
 
-    private fun toAccountCreatedEvent() = AccountCreatedEvent(
-        id = id.value,
-        identityNumber = identityNumber.value,
-        name = name.value,
-        surname = surname.value,
-        birthdate = birthdate.value,
-        email = email.value,
-        phonePrefix = phonePrefix.value,
-        phoneNumber = phoneNumber.value,
-        registerDate = registerDate.value,
-    )
+    private fun toAccountCreatedEvent() =
+        AccountCreatedEvent(
+            id = id.value,
+            identityNumber = identityNumber.value,
+            name = name.value,
+            surname = surname.value,
+            birthdate = birthdate.value,
+            email = email.value,
+            phonePrefix = phonePrefix.value,
+            phoneNumber = phoneNumber.value,
+            registerDate = registerDate.value,
+        )
 }
 
 @JvmInline
-value class AccountId(val value: UUID) : DomainId {
+value class AccountId(val value: UUID) : AggregateId {
     override fun toString(): String = value.toString()
 }
 
