@@ -6,11 +6,11 @@ import com.github.caay2000.common.http.Controller
 import com.github.caay2000.common.idgenerator.IdGenerator
 import com.github.caay2000.common.jsonapi.ServerResponse
 import com.github.caay2000.context.application.AccountRepository
-import com.github.caay2000.context.application.create.AccountCreatorError
 import com.github.caay2000.context.application.create.CreateAccountCommand
 import com.github.caay2000.context.application.create.CreateAccountCommandHandler
 import com.github.caay2000.context.application.find.FindAccountByIdQuery
 import com.github.caay2000.context.application.find.FindAccountByIdQueryHandler
+import com.github.caay2000.context.domain.AccountCreationError
 import com.github.caay2000.context.domain.AccountId
 import com.github.caay2000.context.primaryadapter.http.serialization.CreateAccountRequestDocument
 import com.github.caay2000.context.primaryadapter.http.serialization.toAccountDetailsDocument
@@ -50,9 +50,9 @@ class CreateAccountController(
     ) {
         call.serverError {
             when (e) {
-                is AccountCreatorError.IdentityNumberAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "IdentityNumberAlreadyExists", e.message)
-                is AccountCreatorError.EmailAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "EmailAlreadyExists", e.message)
-                is AccountCreatorError.PhoneAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "PhoneAlreadyExists", e.message)
+                is AccountCreationError.IdentityNumberAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "IdentityNumberAlreadyExists", e.message)
+                is AccountCreationError.EmailAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "EmailAlreadyExists", e.message)
+                is AccountCreationError.PhoneAlreadyExists -> ServerResponse(HttpStatusCode.BadRequest, "PhoneAlreadyExists", e.message)
                 else -> ServerResponse(HttpStatusCode.InternalServerError, "Unknown Error", e.message)
             }
         }
