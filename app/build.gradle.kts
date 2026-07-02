@@ -5,7 +5,6 @@ plugins {
     id("plugin-kotlin-serialization")
 }
 dependencies {
-    implementation(project(":libs:common-arrow"))
     implementation(project(":libs:common-cqrs"))
     implementation(project(":libs:common-date"))
     implementation(project(":libs:common-http"))
