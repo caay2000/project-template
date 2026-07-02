@@ -7,7 +7,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":libs:common-arrow"))
     implementation(project(":libs:common-cqrs"))
     implementation(project(":libs:common-http"))
     implementation(project(":libs:common-date"))
@@ -21,8 +20,6 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
     implementation("io.ktor:ktor-server-call-logging")
-
-    implementation("io.arrow-kt:arrow-core")
 
     implementation("io.github.microutils:kotlin-logging-jvm")
 

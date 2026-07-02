@@ -1,6 +1,5 @@
 package com.github.caay2000.context.application.print
 
-import com.github.caay2000.common.arrow.getOrThrow
 import com.github.caay2000.common.cqrs.Command
 import com.github.caay2000.common.cqrs.CommandHandler
 import com.github.caay2000.context.application.AccountRepository
@@ -13,9 +12,7 @@ class LogAccountInfoCommandHandler(accountRepository: AccountRepository) : Comma
     override val logger: KLogger = KotlinLogging.logger {}
     private val accountLogger = AccountLogger(accountRepository)
 
-    override fun handle(command: LogAccountInfoCommand): Unit =
-        accountLogger.invoke(AccountId(command.accountId))
-            .getOrThrow()
+    override fun handle(command: LogAccountInfoCommand): Unit = accountLogger.invoke(AccountId(command.accountId))
 }
 
 data class LogAccountInfoCommand(val accountId: UUID) : Command

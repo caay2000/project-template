@@ -1,6 +1,5 @@
 package com.github.caay2000.context.application.create
 
-import com.github.caay2000.common.arrow.getOrThrow
 import com.github.caay2000.common.cqrs.Command
 import com.github.caay2000.common.cqrs.CommandHandler
 import com.github.caay2000.common.event.DomainEventPublisher
@@ -41,7 +40,7 @@ class CreateAccountCommandHandler(
                 phoneNumber = PhoneNumber(command.phoneNumber),
                 registerDate = RegisterDate(command.registerDate),
             ),
-        ).getOrThrow()
+        )
 }
 
 data class CreateAccountCommand(

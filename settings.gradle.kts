@@ -10,7 +10,6 @@ plugins {
 rootProject.name = "project-template"
 include(
     "app",
-    "libs:common-arrow",
     "libs:common-cqrs",
     "libs:common-date",
     "libs:common-ddd",
