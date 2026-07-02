@@ -12,7 +12,6 @@ dependencies {
     implementation(project(":libs:common-date"))
     implementation(project(":libs:common-ddd"))
     implementation(project(":libs:common-id-generator"))
-    implementation(project(":libs:lib-dependency-injection"))
     implementation(project(":libs:lib-memory-database"))
 
     implementation("io.ktor:ktor-server-core")
