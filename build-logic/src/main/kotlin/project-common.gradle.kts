@@ -17,7 +17,6 @@ project.ext["ktor-swagger-ui_version" ] = "2.7.4"
 project.ext["swagger-annotations_version" ] = "2.2.20"
 
 project.ext["test_jsonassert_version"] = "1.5.1"
-project.ext["test_awaitility_version"] = "4.2.0"
 project.ext["test_json_schema_validator_version"] = "1.3.3"
 
 repositories {
@@ -59,7 +58,6 @@ dependencies {
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${project.ext["kotlinx_coroutines_version"]}")
         implementation("org.skyscreamer:jsonassert:${project.ext["test_jsonassert_version"]}")
         implementation("io.ktor:ktor-server-test-host:${project.ext["ktor_version"]}")
-        implementation("org.awaitility:awaitility-kotlin:${project.ext["test_awaitility_version"]}")
         implementation("com.networknt:json-schema-validator:${project.ext["test_json_schema_validator_version"]}")
     }
 }

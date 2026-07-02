@@ -1,9 +1,8 @@
 package com.github.caay2000.configuration
 
 import com.github.caay2000.common.date.provider.LocalDateProvider
-import com.github.caay2000.common.event.AsyncDomainEventBus
 import com.github.caay2000.common.event.DomainEventBus
-import com.github.caay2000.common.event.init
+import com.github.caay2000.common.event.SyncDomainEventBus
 import com.github.caay2000.common.event.subscribe
 import com.github.caay2000.common.eventbus.EventBus
 import com.github.caay2000.common.idgenerator.UUIDGenerator
@@ -24,11 +23,10 @@ val DependencyInjectionConfiguration =
         DiKt.register { UUIDGenerator() }
         DiKt.register { LocalDateProvider() }
 
-        DiKt.register { EventBus(numPartitions = 3) }
-        DiKt.register { AsyncDomainEventBus(DiKt.bind()) }
+        DiKt.register { EventBus() }
+        DiKt.register { SyncDomainEventBus(DiKt.bind()) }
         DiKt.get<DomainEventBus>()
             .subscribe(LogAccountInfoOnLoanAccountCreatedEventSubscriber(DiKt.bind()))
-            .init()
 
         DiKt.register { CreateAccountController(DiKt.bind(), DiKt.bind(), DiKt.bind(), DiKt.bind()) }
         DiKt.register { FindAccountController(DiKt.bind()) }

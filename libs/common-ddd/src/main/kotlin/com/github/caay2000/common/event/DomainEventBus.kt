@@ -10,7 +10,3 @@ inline fun <reified EVENT : DomainEvent> DomainEventBus.subscribe(subscriber: Do
     this.eventBus.subscribe(subscriber)
     return this
 }
-
-fun DomainEventBus.init() {
-    this.eventBus.init()
-}
