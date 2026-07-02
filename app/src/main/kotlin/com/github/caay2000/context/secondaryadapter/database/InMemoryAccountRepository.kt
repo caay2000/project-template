@@ -1,8 +1,8 @@
 package com.github.caay2000.context.secondaryadapter.database
 
-import com.github.caay2000.context.application.AccountRepository
-import com.github.caay2000.context.application.FindAccountCriteria
 import com.github.caay2000.context.domain.Account
+import com.github.caay2000.context.domain.AccountRepository
+import com.github.caay2000.context.domain.FindAccountCriteria
 import com.github.caay2000.memorydb.InMemoryDatasource
 
 class InMemoryAccountRepository(private val datasource: InMemoryDatasource) : AccountRepository {

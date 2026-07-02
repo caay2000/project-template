@@ -1,14 +1,6 @@
-package com.github.caay2000.context.application
+package com.github.caay2000.context.domain
 
-import com.github.caay2000.context.domain.Account
-import com.github.caay2000.context.domain.AccountId
-import com.github.caay2000.context.domain.Email
-import com.github.caay2000.context.domain.IdentityNumber
-import com.github.caay2000.context.domain.PhoneNumber
-import com.github.caay2000.context.domain.PhonePrefix
-import com.github.caay2000.memorydb.Repository
-
-interface AccountRepository : Repository {
+interface AccountRepository {
     fun save(account: Account)
 
     fun searchAll(): List<Account>
