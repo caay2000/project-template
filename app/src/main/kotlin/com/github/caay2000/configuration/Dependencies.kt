@@ -8,6 +8,9 @@ import com.github.caay2000.common.eventbus.EventBus
 import com.github.caay2000.common.idgenerator.IdGenerator
 import com.github.caay2000.common.idgenerator.UUIDGenerator
 import com.github.caay2000.context.application.AccountRepository
+import com.github.caay2000.context.application.create.CreateAccountCommandHandler
+import com.github.caay2000.context.application.find.FindAccountByIdQueryHandler
+import com.github.caay2000.context.application.print.LogAccountInfoCommandHandler
 import com.github.caay2000.context.primaryadapter.event.LogAccountInfoOnLoanAccountCreatedEventSubscriber
 import com.github.caay2000.context.primaryadapter.http.CreateAccountController
 import com.github.caay2000.context.primaryadapter.http.FindAccountController
@@ -22,10 +25,14 @@ class Dependencies(
 ) {
     private val domainEventBus = SyncDomainEventBus(eventBus)
 
-    val createAccountController = CreateAccountController(idGenerator, dateProvider, accountRepository, domainEventBus)
-    val findAccountController = FindAccountController(accountRepository)
+    private val createAccountCommandHandler = CreateAccountCommandHandler(accountRepository, domainEventBus)
+    private val findAccountByIdQueryHandler = FindAccountByIdQueryHandler(accountRepository)
+    private val logAccountInfoCommandHandler = LogAccountInfoCommandHandler(accountRepository)
+
+    val createAccountController = CreateAccountController(idGenerator, dateProvider, createAccountCommandHandler, findAccountByIdQueryHandler)
+    val findAccountController = FindAccountController(findAccountByIdQueryHandler)
 
     init {
-        domainEventBus.subscribe(LogAccountInfoOnLoanAccountCreatedEventSubscriber(accountRepository))
+        domainEventBus.subscribe(LogAccountInfoOnLoanAccountCreatedEventSubscriber(logAccountInfoCommandHandler))
     }
 }
