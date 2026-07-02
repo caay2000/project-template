@@ -1,44 +1,31 @@
 package com.github.caay2000.context.domain
 
-class AccountCreationService {
-    fun create(
-        request: CreateAccountRequest,
-        duplicates: AccountDuplicates,
-    ): Account {
-        guardIdentityNumberIsNotRepeated(request.identityNumber, duplicates.identityNumberExists)
-        guardEmailIsNotRepeated(request.email, duplicates.emailExists)
-        guardPhoneIsNotRepeated(request.phonePrefix, request.phoneNumber, duplicates.phoneExists)
+class AccountCreationService(private val accountRepository: AccountRepository) {
+    fun create(request: CreateAccountRequest): Account {
+        guardIdentityNumberIsNotRepeated(request.identityNumber)
+        guardEmailIsNotRepeated(request.email)
+        guardPhoneIsNotRepeated(request.phonePrefix, request.phoneNumber)
         return Account.create(request)
     }
 
-    private fun guardIdentityNumberIsNotRepeated(
-        identityNumber: IdentityNumber,
-        exists: Boolean,
-    ) {
+    private fun guardIdentityNumberIsNotRepeated(identityNumber: IdentityNumber) {
+        val exists = accountRepository.findBy(FindAccountCriteria.ByIdentityNumber(identityNumber)) != null
         if (exists) throw AccountCreationError.IdentityNumberAlreadyExists(identityNumber)
     }
 
-    private fun guardEmailIsNotRepeated(
-        email: Email,
-        exists: Boolean,
-    ) {
+    private fun guardEmailIsNotRepeated(email: Email) {
+        val exists = accountRepository.findBy(FindAccountCriteria.ByEmail(email)) != null
         if (exists) throw AccountCreationError.EmailAlreadyExists(email)
     }
 
     private fun guardPhoneIsNotRepeated(
         phonePrefix: PhonePrefix,
         phoneNumber: PhoneNumber,
-        exists: Boolean,
     ) {
+        val exists = accountRepository.findBy(FindAccountCriteria.ByPhone(phonePrefix, phoneNumber)) != null
         if (exists) throw AccountCreationError.PhoneAlreadyExists(phonePrefix, phoneNumber)
     }
 }
-
-data class AccountDuplicates(
-    val identityNumberExists: Boolean,
-    val emailExists: Boolean,
-    val phoneExists: Boolean,
-)
 
 sealed class AccountCreationError : RuntimeException {
     constructor(message: String) : super(message)

@@ -7,10 +7,10 @@ import com.github.caay2000.common.event.subscribe
 import com.github.caay2000.common.eventbus.EventBus
 import com.github.caay2000.common.idgenerator.IdGenerator
 import com.github.caay2000.common.idgenerator.UUIDGenerator
-import com.github.caay2000.context.application.AccountRepository
 import com.github.caay2000.context.application.create.CreateAccountCommandHandler
 import com.github.caay2000.context.application.find.FindAccountByIdQueryHandler
 import com.github.caay2000.context.application.print.LogAccountInfoCommandHandler
+import com.github.caay2000.context.domain.AccountRepository
 import com.github.caay2000.context.primaryadapter.event.LogAccountInfoOnLoanAccountCreatedEventSubscriber
 import com.github.caay2000.context.primaryadapter.http.CreateAccountController
 import com.github.caay2000.context.primaryadapter.http.FindAccountController

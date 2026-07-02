@@ -2,8 +2,8 @@ package com.github.caay2000.context.application.print
 
 import com.github.caay2000.common.cqrs.Command
 import com.github.caay2000.common.cqrs.CommandHandler
-import com.github.caay2000.context.application.AccountRepository
 import com.github.caay2000.context.domain.AccountId
+import com.github.caay2000.context.domain.AccountRepository
 import mu.KLogger
 import mu.KotlinLogging
 import java.util.UUID

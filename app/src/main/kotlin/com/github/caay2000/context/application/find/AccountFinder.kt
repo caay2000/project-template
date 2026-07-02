@@ -1,9 +1,9 @@
 package com.github.caay2000.context.application.find
 
-import com.github.caay2000.context.application.AccountRepository
-import com.github.caay2000.context.application.FindAccountCriteria
 import com.github.caay2000.context.domain.Account
 import com.github.caay2000.context.domain.AccountId
+import com.github.caay2000.context.domain.AccountRepository
+import com.github.caay2000.context.domain.FindAccountCriteria
 
 class AccountFinder(private val accountRepository: AccountRepository) {
     fun invoke(accountId: AccountId): Account =

@@ -3,9 +3,9 @@ package com.github.caay2000.context.application.find
 import com.github.caay2000.common.cqrs.Query
 import com.github.caay2000.common.cqrs.QueryHandler
 import com.github.caay2000.common.cqrs.QueryResponse
-import com.github.caay2000.context.application.AccountRepository
 import com.github.caay2000.context.domain.Account
 import com.github.caay2000.context.domain.AccountId
+import com.github.caay2000.context.domain.AccountRepository
 import mu.KLogger
 import mu.KotlinLogging
 

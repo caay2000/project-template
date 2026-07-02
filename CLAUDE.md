@@ -5,23 +5,24 @@ Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`c
 ## Capas
 
 ### `domain/`
-- Entidades, value objects, agregados y **domain services**.
-- Solo lógica de negocio pura: invariantes, validaciones, decisiones, cálculos.
-- **Regla más importante: prohibido cualquier I/O en esta capa.** Nada de repositorios, HTTP, ficheros, logging, reloj del sistema ni generación de IDs. Un domain service recibe como parámetros los datos que necesita (ya obtenidos por la capa de aplicación) y **lanza** su sealed exception si detecta un invariante roto; nunca va a buscar datos él mismo.
-- Sin dependencias de frameworks (Ktor, kotlinx.serialization, etc).
+- Entidades, value objects, agregados, **domain services** y las **interfaces de `Repository`** (el repositorio es un patrón táctico de dominio, DDD clásico — el puerto vive aquí, su implementación en `secondaryadapter/`).
+- Lógica de negocio: invariantes, validaciones, decisiones, cálculos. Un domain service puede depender de una interfaz `Repository` definida en `domain/` para consultar los datos que necesita para decidir (p.ej. comprobar unicidad) — es el propio domain service quien pregunta lo que necesita, cuando lo necesita, en vez de que `application/` se lo precargue y pase por parámetro.
+- **Regla más importante: el dominio nunca persiste ni publica, solo decide.** `Repository` es la única dependencia de I/O permitida en domain, y solo para lectura (`find`/`search`); guardar (`save`) y publicar eventos siguen siendo responsabilidad exclusiva de `application/`. Prohibido cualquier otro I/O: HTTP, ficheros, logging, reloj del sistema, generación de IDs.
+- Sin dependencias de frameworks (Ktor, kotlinx.serialization, etc) ni de librerías con nombre de infraestructura (p.ej. nada de `memorydb.*` en un import de `domain/`).
 
 ### `application/`
 - Orquesta casos de uso mediante dos tipos de clase, **siempre separadas**:
   - `CommandHandler`/`QueryHandler`: un traductor delgado por caso de uso. Recibe el `Command`/`Query`, llama al application service correspondiente y devuelve el resultado. No orquesta I/O ni contiene lógica.
-  - Application service (`Creator`/`Finder`/`Searcher`/`Logger`...): aquí SÍ vive el I/O — llamadas a repositorios (a través de sus interfaces), publicación de eventos, etc. Su trabajo es: obtener los datos necesarios (I/O) → delegar la decisión de negocio al domain service correspondiente → persistir/publicar el resultado (I/O). No debe contener reglas de negocio propias.
+  - Application service (`Creator`/`Finder`/`Searcher`/`Logger`...): invoca al domain service/aggregate correspondiente (que puede haber consultado el repositorio por su cuenta para decidir) y luego persiste/publica el resultado (`save`, `eventPublisher.publish`). No precarga datos "por si acaso" el dominio los necesita — eso ya lo resuelve el domain service. No debe contener reglas de negocio propias.
   - No los fusiones en una sola clase: el naming (`Finder` vs `Searcher`, ver abajo) porta significado, y separar el traductor HTTP-independiente de la orquestación mantiene cada pieza testeable por separado.
+- Cuando un caso de uso es una lectura pura sin ninguna regla de negocio (p.ej. `AccountFinder`, `AccountLogger`: buscar por id y devolver "not found" si no existe), no hace falta inventar un domain service — el application service llama al repositorio directamente. Un domain service solo aparece cuando hay una decisión de negocio real que tomar.
 - **`Find`/`Finder` vs `Search`/`Searcher` (no es cosmético):** `Find`/`Finder` solo cuando el resultado es unario — existe o no existe, como mucho uno (`FindAccountByIdQueryHandler`, `AccountFinder`, lanza "not found" si no aparece). En cuanto el resultado es una lista (0, 1 o N, nunca un 404 por "no encontrado"), es siempre `Search`/`Searcher`.
 
 ### `primaryadapter/`
 - Adaptadores de entrada: controllers HTTP, subscribers de eventos. Traducen el mundo exterior a comandos/queries de `application/`. Cero lógica de negocio aquí: construyen el `Command`/`Query`, invocan el handler, serializan la respuesta.
 
 ### `secondaryadapter/`
-- Adaptadores de salida: implementaciones de repositorios y clientes externos, implementando los puertos (interfaces) definidos en `application/`.
+- Adaptadores de salida: implementaciones de repositorios y clientes externos, implementando los puertos (interfaces) definidos en `domain/`.
 
 ## Errores
 
@@ -48,4 +49,4 @@ Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`c
 - Value classes para primitivos con significado de negocio (ver `Account.kt`).
 - Los agregados publican domain events con `pushEvent`/`pullEvents`; es el application service quien los publica de verdad con `eventPublisher.publish(...)`.
 - CQRS: separa comandos (mutan estado) de queries (leen estado) usando `CommandHandler`/`QueryHandler`.
-- Antes de añadir código nuevo, decide primero en qué capa vive: si necesita I/O, es `application/`; si es una regla de negocio, es `domain/`.
+- Antes de añadir código nuevo, decide primero en qué capa vive: si es una decisión de negocio (aunque necesite consultar el repositorio para tomarla), es `domain/`; si es orquestación (persistir, publicar eventos, una lectura sin regla de negocio), es `application/`.
