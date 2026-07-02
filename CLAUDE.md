@@ -7,7 +7,7 @@ Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`c
 ### `domain/`
 - Entidades, value objects, agregados y **domain services**.
 - Solo lógica de negocio pura: invariantes, validaciones, decisiones, cálculos.
-- **Regla más importante: prohibido cualquier I/O en esta capa.** Nada de repositorios, HTTP, ficheros, logging, reloj del sistema ni generación de IDs. Un domain service recibe como parámetros los datos que necesita (ya obtenidos por la capa de aplicación) y **lanza** su sealed exception si detecta un invariante roto; nunca va a buscar datos él mismo ni devuelve un `Either`.
+- **Regla más importante: prohibido cualquier I/O en esta capa.** Nada de repositorios, HTTP, ficheros, logging, reloj del sistema ni generación de IDs. Un domain service recibe como parámetros los datos que necesita (ya obtenidos por la capa de aplicación) y **lanza** su sealed exception si detecta un invariante roto; nunca va a buscar datos él mismo.
 - Sin dependencias de frameworks (Ktor, kotlinx.serialization, etc).
 
 ### `application/`
@@ -26,8 +26,7 @@ Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`c
 ## Errores
 
 - Errores de negocio (invariantes) son `sealed class ... : RuntimeException`, definidos en `domain/` junto al servicio que los lanza. Errores de orquestación (p.ej. "no encontrado") pueden vivir en `application/`.
-- Se **lanzan** (`throw`), no se envuelven en `Either`. Los mapea a HTTP únicamente el controller (`handleExceptions`), nunca antes.
-- Nada de Arrow/`Either` en este proyecto — ni como dependencia. Un `throw` + `catch` en el borde HTTP es más simple que envolver cada paso en `Either` para desenvolverlo una línea después.
+- Se **lanzan** (`throw`), nunca se envuelven en un tipo de retorno de error. Los mapea a HTTP únicamente el controller (`handleExceptions`), nunca antes.
 
 ## Dependency Injection
 
