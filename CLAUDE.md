@@ -2,13 +2,15 @@
 
 Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`context/<nombre>/...`). Respeta siempre estas capas y normas.
 
+**Regla rápida:** antes de añadir código nuevo, decide primero en qué capa vive — si es una decisión de negocio (aunque necesite consultar el repositorio para tomarla), va en `domain/`; si es orquestación (persistir, publicar eventos, una lectura sin regla de negocio), va en `application/`.
+
 ## Capas
 
 ### `domain/`
 - Entidades, value objects, agregados, **domain services** y las **interfaces de `Repository`** (el repositorio es un patrón táctico de dominio, DDD clásico — el puerto vive aquí, su implementación en `secondaryadapter/`).
 - Lógica de negocio: invariantes, validaciones, decisiones, cálculos. Un domain service puede depender de una interfaz `Repository` definida en `domain/` para consultar los datos que necesita para decidir (p.ej. comprobar unicidad) — es el propio domain service quien pregunta lo que necesita, cuando lo necesita, en vez de que `application/` se lo precargue y pase por parámetro.
 - **Regla más importante: el dominio nunca persiste ni publica, solo decide.** `Repository` es la única dependencia de I/O permitida en domain, y solo para lectura (`find`/`search`); guardar (`save`) y publicar eventos siguen siendo responsabilidad exclusiva de `application/`. Prohibido cualquier otro I/O: HTTP, ficheros, logging, reloj del sistema, generación de IDs.
-- Sin dependencias de frameworks (Ktor, kotlinx.serialization, etc) ni de librerías con nombre de infraestructura (p.ej. nada de `memorydb.*` en un import de `domain/`).
+- Sin dependencias de frameworks (Ktor, kotlinx.serialization, etc) ni de librerías cuyo nombre delate infraestructura concreta (base de datos, mensajería, etc.) en un import de `domain/`.
 
 ### `application/`
 - Orquesta casos de uso mediante dos tipos de clase, **siempre separadas**:
@@ -48,5 +50,3 @@ Este proyecto sigue **Domain-Driven Design** organizado por bounded contexts (`c
 
 - Value classes para primitivos con significado de negocio (ver `Account.kt`).
 - Los agregados publican domain events con `pushEvent`/`pullEvents`; es el application service quien los publica de verdad con `eventPublisher.publish(...)`.
-- CQRS: separa comandos (mutan estado) de queries (leen estado) usando `CommandHandler`/`QueryHandler`.
-- Antes de añadir código nuevo, decide primero en qué capa vive: si es una decisión de negocio (aunque necesite consultar el repositorio para tomarla), es `domain/`; si es orquestación (persistir, publicar eventos, una lectura sin regla de negocio), es `application/`.
