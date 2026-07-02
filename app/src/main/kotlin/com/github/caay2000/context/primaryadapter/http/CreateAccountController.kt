@@ -1,11 +1,9 @@
 package com.github.caay2000.context.primaryadapter.http
 
 import com.github.caay2000.common.date.provider.DateProvider
-import com.github.caay2000.common.event.DomainEventPublisher
 import com.github.caay2000.common.http.Controller
 import com.github.caay2000.common.idgenerator.IdGenerator
 import com.github.caay2000.common.jsonapi.ServerResponse
-import com.github.caay2000.context.application.AccountRepository
 import com.github.caay2000.context.application.create.CreateAccountCommand
 import com.github.caay2000.context.application.create.CreateAccountCommandHandler
 import com.github.caay2000.context.application.find.FindAccountByIdQuery
@@ -26,13 +24,10 @@ import java.util.UUID
 class CreateAccountController(
     private val idGenerator: IdGenerator,
     private val dateProvider: DateProvider,
-    accountRepository: AccountRepository,
-    eventPublisher: DomainEventPublisher,
+    private val commandHandler: CreateAccountCommandHandler,
+    private val queryHandler: FindAccountByIdQueryHandler,
 ) : Controller {
     override val logger: KLogger = KotlinLogging.logger {}
-
-    private val commandHandler = CreateAccountCommandHandler(accountRepository, eventPublisher)
-    private val queryHandler = FindAccountByIdQueryHandler(accountRepository)
 
     override suspend fun handle(call: ApplicationCall) {
         val request = call.receive<CreateAccountRequestDocument>()

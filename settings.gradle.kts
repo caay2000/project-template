@@ -17,6 +17,5 @@ include(
     "libs:common-id-generator",
     "libs:common-test",
     "libs:lib-memory-database",
-    "libs:lib-event-bus",
-    "libs:lib-dependency-injection"
+    "libs:lib-event-bus"
 )

@@ -7,13 +7,15 @@ import com.github.caay2000.common.test.http.toHttpDataResponse
 import com.github.caay2000.common.test.json.testJsonMapper
 import com.github.caay2000.common.test.mock.MockDateProvider
 import com.github.caay2000.common.test.mock.MockIdGenerator
-import com.github.caay2000.context.application.AccountRepository
+import com.github.caay2000.configuration.Dependencies
+import com.github.caay2000.configureApplication
 import com.github.caay2000.context.domain.Account
 import com.github.caay2000.context.mother.AccountMother
 import com.github.caay2000.context.primaryadapter.http.serialization.AccountDetailsDocument
 import com.github.caay2000.context.primaryadapter.http.serialization.CreateAccountRequestDocument
 import com.github.caay2000.context.primaryadapter.http.serialization.toAccountDetailsDocument
-import com.github.caay2000.dikt.DiKt
+import com.github.caay2000.context.secondaryadapter.database.InMemoryAccountRepository
+import com.github.caay2000.memorydb.InMemoryDatasource
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -22,24 +24,23 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import kotlinx.serialization.encodeToString
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CreateAccountControllerTest {
     private val mockIdGenerator = MockIdGenerator()
     private val mockDateProvider = MockDateProvider()
-
-    @BeforeEach
-    fun setUp() {
-        DiKt.clear()
-        DiKt.register(override = true) { mockIdGenerator }
-        DiKt.register(override = true) { mockDateProvider }
-    }
+    private val accountRepository = InMemoryAccountRepository(InMemoryDatasource())
+    private val dependencies =
+        Dependencies(
+            idGenerator = mockIdGenerator,
+            dateProvider = mockDateProvider,
+            accountRepository = accountRepository,
+        )
 
     @Test
     fun `an account can be created`() =
         testApplication {
-            startApplication()
+            application { configureApplication(dependencies) }
             mockIdGenerator.mock(account.id.value)
             mockDateProvider.mock(account.registerDate.value)
 
@@ -57,8 +58,8 @@ class CreateAccountControllerTest {
     @Test
     fun `an account can be retrieved`() =
         testApplication {
-            startApplication()
-            DiKt.get<AccountRepository>().save(account)
+            application { configureApplication(dependencies) }
+            accountRepository.save(account)
 
             val response = client.get("/account/${account.id.value}").toHttpDataResponse<AccountDetailsDocument>()
 
@@ -70,8 +71,8 @@ class CreateAccountControllerTest {
     @Test
     fun `an account with identityNumber repeated cannot be created`() =
         testApplication {
-            startApplication()
-            DiKt.get<AccountRepository>().save(account)
+            application { configureApplication(dependencies) }
+            accountRepository.save(account)
             mockIdGenerator.mock(sameIdentityNumberAccount.id.value)
             mockDateProvider.mock(sameIdentityNumberAccount.registerDate.value)
 
@@ -89,8 +90,8 @@ class CreateAccountControllerTest {
     @Test
     fun `an account with email repeated cannot be created`() =
         testApplication {
-            startApplication()
-            DiKt.get<AccountRepository>().save(account)
+            application { configureApplication(dependencies) }
+            accountRepository.save(account)
             mockIdGenerator.mock(sameEmailAccount.id.value)
             mockDateProvider.mock(sameEmailAccount.registerDate.value)
 
@@ -108,8 +109,8 @@ class CreateAccountControllerTest {
     @Test
     fun `an account with phone repeated cannot be created`() =
         testApplication {
-            startApplication()
-            DiKt.get<AccountRepository>().save(account)
+            application { configureApplication(dependencies) }
+            accountRepository.save(account)
             mockIdGenerator.mock(samePhoneAccount.id.value)
             mockDateProvider.mock(samePhoneAccount.registerDate.value)
 
