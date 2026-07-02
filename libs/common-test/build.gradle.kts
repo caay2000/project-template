@@ -16,5 +16,4 @@ dependencies {
     api("org.assertj:assertj-core")
     api("org.skyscreamer:jsonassert")
     api("io.ktor:ktor-server-test-host")
-    api("org.awaitility:awaitility-kotlin")
 }
